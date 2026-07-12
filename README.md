@@ -1,6 +1,6 @@
 # CLR Learning
 
-Bu repo, C# sözdizimini ezberlemek için değil; .NET Runtime / CLR çalışma mantığını öğrenmek için tutulur.
+Bu repo stajyerler için, C# sözdizimini ezberlemek için değil; .NET Runtime / CLR çalışma mantığını öğrenmek için tutulur.
 
 ## Amaç
 

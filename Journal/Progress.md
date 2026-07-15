@@ -1,18 +1,27 @@
 # Progress Tracker
 
-Son güncelleme: 2026-07-09
+Son güncelleme: 2026-07-16
 
 ## Güncel Konum
 
-Şu anda **Aşama 1 — CLR ve Bellek Modeli** içindeyiz.
+Şu anda **Aşama 3 — Method Mekaniği** içindeyiz.
 
-En son işlenen ana konu: **Call Stack, Stack Frame, Stack Pointer, Return Address, Stack/Heap ayrımı ve GC ilişkisi**.
+Önceki temel konular korunarak şu zincir tamamlandı:
 
-Bir sonraki doğal konu: **Method Parameter Passing**.
+```text
+Class → Object → new → Heap → Reference Variable → Stack Frame
+→ Call Stack → Parameter Copy → ref
+```
 
-Özellikle sıradaki soru:
+En son işlenen ana konu:
 
-> `void Foo(Player p)` veya `void Foo(int x)` çağrıldığında stack frame içinde ne kopyalanır?
+- Normal parametre aktarımında kopyalama
+- Value type parametrede değerin kopyalanması
+- Reference type parametrede referans değerinin kopyalanması
+- Nesneyi değiştirmek ile referans değişkenini değiştirmek arasındaki fark
+- `ref` ile çağıranın değişkeninin storage location'ına erişmek
+
+Bir sonraki doğal konu: **`out` ve `in` neden var?**
 
 ---
 
@@ -53,8 +62,8 @@ Bir sonraki doğal konu: **Method Parameter Passing**.
 ⬜ Unboxing
 ⬜ Struct
 ⬜ `System.ValueType`
-⬜ Value copy
-⬜ Reference copy
+✅ Value copy
+✅ Reference copy
 ⬜ Mutable / Immutable
 ⬜ `string`
 ⬜ `readonly`
@@ -65,11 +74,11 @@ Bir sonraki doğal konu: **Method Parameter Passing**.
 
 ## Aşama 3 — Method Mekaniği
 
-🟡 Call Stack
-⬜ Parametre aktarımı
-⬜ Pass by value
-⬜ Pass by reference
-⬜ `ref`
+✅ Call Stack
+✅ Parametre aktarımı
+✅ Pass by value
+✅ Reference value copy
+✅ `ref`
 ⬜ `out`
 ⬜ `in`
 ⬜ `params`
@@ -78,60 +87,127 @@ Bir sonraki doğal konu: **Method Parameter Passing**.
 
 ---
 
-## En Son Netleşen Kritik Cevap
+## Kalıcı Temel Bilgiler
 
-Kod:
+### Class ve Object
+
+- Class bir tip tanımıdır; tek başına object oluşturmaz.
+- Object, `new` çalıştığında oluşur.
+
+### Stack ve Heap
+
+- Referans değişkeni ilgili stack frame içinde tutulur.
+- `new Player()` ile oluşan nesne heap'tedir.
+- Metot bitince frame kaldırılır; heap nesnesi hemen silinmez.
+- Ulaşılabilir referans kalmazsa nesne GC tarafından ileride toplanabilir.
+
+### Constructor
+
+- Constructor nesneyi allocate etmez.
+- Allocation ve default field initialization sonrasında nesneyi valid duruma getirir.
+
+### Property
+
+- Field veriyi taşır.
+- Property kontrollü erişim sağlar ve compiler tarafından accessor metotlarına dönüştürülür.
+
+### Runtime Type
 
 ```csharp
-void Foo()
+object o = new Player();
+```
+
+- Compile-time type: `object`
+- Runtime type: `Player`
+- `GetType()` sonucu: `Player`
+
+---
+
+## Method Parameter Passing — Netleşen Kurallar
+
+### Value Type
+
+```csharp
+void Increase(int x)
 {
-    Player p = new Player();
+    x++;
+}
+
+int number = 5;
+Increase(number);
+```
+
+`x`, `number` değişkeni değildir. `number` değerinin kopyasıdır. Sonuçta `number` 5 kalır.
+
+### Reference Type — Nesneyi Değiştirmek
+
+```csharp
+void ChangeName(Player p)
+{
+    p.Name = "Veli";
 }
 ```
 
-Öğrencinin doğru cevabı:
+`p`, çağırandaki referans değerinin kopyasıdır. İki değişken aynı heap nesnesini gösterdiği için nesnenin içi değişir.
 
-- `p` stack'tedir.
-- `new Player()` heap'tedir.
-- `Foo()` bitince `p`'nin bulunduğu stack frame kaldırılır.
-- Heap'teki `Player` object hemen yok olmaz.
-- Ona ulaşan referans kalmadığı için GC uygun zamanda onu toplayabilir.
+### Reference Type — Referansı Yeniden Atamak
 
-Bu cevap, Stack + Heap + GC ilişkisinin temel olarak oturduğunu gösterir.
+```csharp
+void Change(Player p)
+{
+    p = new Player();
+}
+```
+
+Sadece local `p` değişkeni yeni nesneyi göstermeye başlar. Çağırandaki değişken değişmez.
+
+### `ref`
+
+```csharp
+void SetPlayer(ref Player p)
+{
+    p = new Player();
+}
+```
+
+`ref`, object'i reference type'a dönüştürmez ve boxing yapmaz. Çağıranın değişkeninin storage location'ına erişim sağlar. Böylece `p = new Player()` çağırandaki değişkenin tuttuğu referansı değiştirir.
+
+---
+
+## En Son Doğru Cevap
+
+```csharp
+void Change(ref Player p)
+{
+    p.Name = "Veli";
+    p = new Player();
+    p.Name = "Mehmet";
+}
+```
+
+Çağrıdan sonra çıktı `Mehmet` olur.
+
+Sebep:
+
+1. İlk nesnenin `Name` alanı `Veli` yapılır.
+2. `ref` üzerinden çağırandaki değişken yeni nesneye yönlendirilir.
+3. Yeni nesnenin `Name` alanı `Mehmet` yapılır.
 
 ---
 
 ## Bir Sonraki Ders Başlangıcı
 
-Önerilen başlangıç sorusu:
+Başlangıç sorusu:
 
 ```csharp
-void Change(int x)
+bool TryParseAge(string text, out int age)
 {
-    x = 10;
+    // ...
 }
-
-int a = 5;
-Change(a);
-Console.WriteLine(a);
 ```
 
-Soru:
+> Normal `ref` varken neden ayrıca `out` tasarlandı?
 
-> `a` neden 5 kalır? Metoda giderken stack frame'e ne kopyalanır?
+Ardından:
 
-Ardından reference type parametre örneğine geçilecek:
-
-```csharp
-void Change(Player p)
-{
-    p.Name = "Veli";
-}
-
-Player player = new Player();
-player.Name = "Ali";
-Change(player);
-Console.WriteLine(player.Name);
-```
-
-Amaç: `ref` anlatmadan önce normal parametre aktarımını oturtmak.
+> Büyük bir struct'ı değiştirmeden ve kopyalamadan metoda geçirmek için neden `in` gerekir?

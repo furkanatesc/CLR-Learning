@@ -9,27 +9,32 @@ Legend:
 
 | Konu | Durum | Not |
 |---|---:|---|
-| Class vs Object | 🟡 | İlk soruda eski hata tekrar etti: class tanımı object oluşturmaz. Tekrar edilmeli. |
+| Class vs Object | 🟡 | Class tanımının object oluşturmadığı düzenli tekrarla kalıcılaştırılmalı. |
 | Instance | 🟡 | Object/instance ilişkisi genel olarak anlaşıldı. |
-| Reference Variable | 🟢 | Referans değişkeninin object olmadığı oturdu. |
-| `new` | 🟢 | Heap allocation ile ilişki kuruldu. |
-| Heap | 🟢 | `new Player()` heap'te oluşur cevabı doğru. |
+| Reference Variable | 🟢 | Referans değişkeninin object olmadığı ve referans değeri taşıdığı oturdu. |
+| `new` | 🟢 | Heap allocation ve yeni object üretimiyle ilişki kuruldu. |
+| Heap | 🟢 | Heap nesnesi ile stack referansı ayrımı doğru kuruluyor. |
 | Stack | 🟢 | Local değişken ve frame ilişkisi oturdu. |
-| Stack Pointer | 🟢 | Pointer'ın kullanılabilir alanı gösterdiği anlaşıldı. |
-| Stack Frame | 🟢 | Main/Foo/Bar örneğinde frame sayısı doğru bulundu. |
-| Call Stack | 🟢 | LIFO mantığı doğru ifade edildi. |
+| Stack Pointer | 🟢 | Kullanılabilir stack alanının sınırı olarak anlaşıldı. |
+| Stack Frame | 🟡 | Kavram doğru anlaşıldı ancak tekrar edilmeyince unutuldu; session tekrarları gerekli. |
+| Call Stack | 🟢 | LIFO ve frame kaldırma sırası doğru ifade edildi. |
 | Return Address | 🟡 | Kavram tanıtıldı, tekrar edilmeli. |
-| Constructor | 🟢 | Constructor'ın nesneyi hazırladığı oturdu. |
+| Constructor | 🟢 | Nesneyi oluşturmadığı, valid duruma hazırladığı oturdu. |
 | Field vs Property | 🟢 | Property'nin kontrollü erişim amacı anlaşıldı. |
-| Encapsulation | 🟢 | Property üzerinden bağlandı. |
-| Invariant | 🟡 | Constructor ile bağlandı, ileride domain model örnekleriyle güçlendirilmeli. |
-| Runtime Type vs Compile-Time Type | 🟢 | `object o = new Player()` örneği doğru cevaplandı. |
-| `GetType()` | 🟢 | Değişken tipini değil gerçek nesne tipini döndürdüğü anlaşıldı. |
-| System.Object | 🟡 | Tüm tiplerin ortak kökü fikri başladı, tam oturması için metadata/method table gerekli. |
+| Encapsulation | 🟢 | Property ve invariant üzerinden bağlandı. |
+| Invariant | 🟡 | Constructor ile bağlandı, domain örnekleriyle güçlendirilmeli. |
+| Runtime Type vs Compile-Time Type | 🟢 | `object o = new Player()` örneği doğru açıklanıyor. |
+| `GetType()` | 🟢 | Gerçek runtime tipini döndürdüğü anlaşıldı. |
+| System.Object | 🟡 | Ortak kök fikri başladı; metadata/method table sonrası pekiştirilecek. |
 | Object Header | 🟡 | Kavram tanıtıldı ama detay işlenmedi. |
 | Method Table | 🟡 | Kavram tanıtıldı ama detay işlenmedi. |
-| Boxing | 🟡 | Heap'e alma kısmı anlaşıldı; neden `object` API'leri için gerektiği tekrar edilmeli. |
+| Boxing | 🟡 | Heap allocation sonucu anlaşıldı; `ref` ile karıştırılmaması pekiştirildi. |
 | Unboxing | ⬜ | Henüz işlenmedi. |
 | Struct | ⬜ | Henüz işlenmedi. |
-| Method Parameter Passing | ⬜ | Sıradaki ana konu. |
-| `ref` / `out` / `in` | ⬜ | Parametre aktarımından sonra işlenecek. |
+| Value Type Parameter Passing | 🟢 | Değerin kopyalandığı stack frame üzerinden doğru açıklandı. |
+| Reference Type Parameter Passing | 🟢 | Object değil, referans değerinin kopyalandığı oturdu. |
+| Object Mutation vs Reference Reassignment | 🟢 | `p.Name = ...` ile `p = new Player()` ayrımı doğru çözüldü. |
+| `ref` | 🟢 | Çağıranın değişkeninin storage location'ına erişim olarak anlaşıldı. |
+| `out` | ⬜ | Sıradaki konu. |
+| `in` | ⬜ | `out` sonrasında işlenecek. |
+| `params` | ⬜ | Henüz işlenmedi. |

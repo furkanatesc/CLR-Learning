@@ -23,10 +23,57 @@ Reference Variable
 Stack Frame
   |
   v
-Method Parameters
+Parameter Passing
   |
-  v
-Pass by Value / ref
+  +--> pass-by-value
+  |
+  +--> ref / managed pointer
+```
+
+## Parameter Passing
+
+```text
+Parameter Passing
+│
+├── pass-by-value
+│   ├── Value Copy
+│   └── Reference Value Copy
+│
+├── ref
+│   │
+│   ├── Caller Variable
+│   ├── Parameter Variable
+│   ├── Managed Pointer
+│   ├── Reassignment
+│   └── Object Mutation
+│
+├── out
+├── in
+└── params
+```
+
+## Memory
+
+```text
+Memory
+│
+├── Stack
+│   ├── Stack Frame
+│   ├── Local Variable
+│   ├── Parameter Variable
+│   └── Caller Variable storage
+│
+├── Heap
+│   └── Object Instance
+│
+├── Reference Variable
+│   └── Reference Value
+│
+└── Managed Pointer
+    ├── Stack slot'a erişebilir
+    ├── Argument slot'a erişebilir
+    ├── Field storage'a erişebilir
+    └── Array element storage'a erişebilir
 ```
 
 ## Stack / Heap / GC Bağlantısı
@@ -122,7 +169,7 @@ Main Frame              Method Frame
 number = 5   --copy-->  x = 5
 ```
 
-Metot içindeki `x`, çağıranın `number` değişkeni değildir.
+Metot içindeki `x`, caller'daki `number` değişkeni değildir.
 
 ### Reference Type
 
@@ -133,23 +180,19 @@ player --reference copy-->    p
        ------> Player #1 <----
 ```
 
-Kopyalanan object değil, referans değeridir.
-
-Bu nedenle:
+Kopyalanan object değil, reference value'dur.
 
 ```csharp
 p.Name = "Veli";
 ```
 
-aynı heap nesnesini değiştirir.
-
-Fakat:
+Aynı heap nesnesini değiştirir.
 
 ```csharp
 p = new Player();
 ```
 
-sadece method frame içindeki `p` değişkenini değiştirir.
+Yalnızca method frame içindeki parameter variable'ı değiştirir.
 
 ## Object Mutation vs Reference Reassignment
 
@@ -164,10 +207,10 @@ Heap object mutation
 p = new Player()
   |
   v
-Local reference variable reassignment
+Parameter variable reassignment
 ```
 
-Bu ayrım reference type parametrelerin temelidir.
+Normal reference type parametrede caller variable ve parameter variable ayrıdır; yalnızca reference value'ları başlangıçta aynıdır.
 
 ## `ref` Bağlantısı
 
@@ -182,18 +225,17 @@ Copy of value/reference value
 ref parameter
   |
   v
-Alias/access to caller variable's storage location
+Managed pointer to caller variable's storage location
 ```
-
-Önemli:
 
 ```text
 ref != boxing
 ref != heap'e taşıma
 ref != object'i dönüştürme
+ref != object paylaşımını başlatma
 ```
 
-`ref`, çağıranın değişkeninin kendisi üzerinde çalışmayı sağlar.
+`ref`, caller variable'ın kendisini temsil eden storage'a erişim sağlar.
 
 ### Value Type ile `ref`
 
@@ -203,7 +245,7 @@ ref a ---------------> x
 ref b ---------------> y
 ```
 
-Bu yüzden `Swap(ref x, ref y)` çağıranın değerlerini değiştirebilir.
+Bu yüzden `Swap(ref x, ref y)` caller'daki değerleri değiştirebilir.
 
 ### Reference Type ile `ref`
 
@@ -216,18 +258,25 @@ ref p -----------------------> player ----> Player #1
 p = new Player();
 ```
 
-çağırandaki `player` değişkeninin tuttuğu referansı değiştirir.
+Caller'daki `player` değişkeninin tuttuğu reference value'yu değiştirir.
 
-## Type Sistemi
+## IL / Metadata Bağlantısı
 
 ```text
-System.Object
+C# ref Player
   |
-  +--> Reference Types
+  v
+Metadata signature: Player&
   |
-  +--> System.ValueType
-          |
-          +--> int / bool / double / struct
+  v
+Managed pointer-producing IL
+  ├── ldloca   (local variable address)
+  ├── ldarga   (argument address)
+  ├── ldflda   (field address)
+  └── ldelema  (array element address)
+  |
+  v
+JIT tracks byref semantics
 ```
 
 ## Sonraki Bağlantılar
@@ -235,18 +284,9 @@ System.Object
 ```text
 ref
   |
-  +--> out: metot çağıranın değişkenine mutlaka değer yazar
+  +--> out: callee değer üretmek zorundadır
   |
   +--> in: by-reference fakat salt okunur erişim
   |
   +--> ref return / ref local
-```
-
-```text
-Value Type
-  |
-  +--> Struct
-  +--> Boxing / Unboxing
-  +--> readonly struct
-  +--> in parameter
 ```

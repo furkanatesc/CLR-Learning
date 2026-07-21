@@ -1,6 +1,10 @@
 # Progress Tracker
 
-Son güncelleme: 2026-07-16
+Son güncelleme: 2026-07-22
+
+## Genel İlerleme
+
+`█████████░░░░░░░░░░░░░░░░░░░  30%`
 
 ## Güncel Konum
 
@@ -10,79 +14,83 @@ Son güncelleme: 2026-07-16
 
 ```text
 Class → Object → new → Heap → Reference Variable → Stack Frame
-→ Call Stack → Parameter Copy → ref
+→ Call Stack → Parameter Copy → ref → Managed Pointer
 ```
 
-En son işlenen ana konu:
+Yeni tamamlanan konu:
 
-- Normal parametre aktarımında kopyalama
-- Value type parametrede değerin kopyalanması
-- Reference type parametrede referans değerinin kopyalanması
-- Nesneyi değiştirmek ile referans değişkenini değiştirmek arasındaki fark
-- `ref` ile çağıranın değişkeninin storage location'ına erişmek
+- ✅ `ref parameter`
+- ✅ Managed Pointer mantığı kavrandı.
+- ✅ Caller Variable ile Parameter Variable farkı öğrenildi.
+- ✅ Object Mutation ile Reference Reassignment ayrımı tamamlandı.
+- ✅ Normal aktarımda değerin, reference type için ise Reference Value'nun kopyalandığı netleşti.
+- ✅ `ref` ile caller variable'ın storage location'ına erişildiği kavrandı.
 
-Bir sonraki doğal konu: **`out` ve `in` neden var?**
+Bir sonraki doğal konu: **`out parameter`**
 
 ---
 
 ## Aşama 1 — CLR ve Bellek Modeli
 
-✅ Class vs Object
-✅ Instance
-✅ Reference variable
-✅ `new`
-✅ Heap allocation
-✅ Constructor
-✅ Constructor nesneyi oluşturmaz, hazırlar
-✅ Field vs Property
-✅ Encapsulation
-✅ Invariant
-✅ Stack
-✅ Heap
-✅ Stack Pointer
-✅ Stack Frame
-✅ Call Stack
-✅ Return Address
-✅ Runtime Type
-✅ Compile-Time Type
-✅ `GetType()`
-🟡 `System.Object`
-🟡 Object Header
-🟡 Method Table
-⬜ Metadata
-⬜ IL
-⬜ JIT
+✅ Class vs Object  
+✅ Instance  
+✅ Reference variable  
+✅ `new`  
+✅ Heap allocation  
+✅ Constructor  
+✅ Constructor nesneyi oluşturmaz, hazırlar  
+✅ Field vs Property  
+✅ Encapsulation  
+✅ Invariant  
+✅ Stack  
+✅ Heap  
+✅ Stack Pointer  
+✅ Stack Frame  
+✅ Call Stack  
+✅ Return Address  
+✅ Runtime Type  
+✅ Compile-Time Type  
+✅ `GetType()`  
+🟡 `System.Object`  
+🟡 Object Header  
+🟡 Method Table  
+⬜ Metadata  
+⬜ IL  
+⬜ JIT  
 ⬜ GC detayları
 
 ---
 
 ## Aşama 2 — Value Type ve Reference Type
 
-🟡 Boxing
-⬜ Unboxing
-⬜ Struct
-⬜ `System.ValueType`
-✅ Value copy
-✅ Reference copy
-⬜ Mutable / Immutable
-⬜ `string`
-⬜ `readonly`
-⬜ `readonly struct`
+🟡 Boxing  
+⬜ Unboxing  
+⬜ Struct  
+⬜ `System.ValueType`  
+✅ Value copy  
+✅ Reference copy  
+⬜ Mutable / Immutable  
+⬜ `string`  
+⬜ `readonly`  
+⬜ `readonly struct`  
 ⬜ `record`
 
 ---
 
 ## Aşama 3 — Method Mekaniği
 
-✅ Call Stack
-✅ Parametre aktarımı
-✅ Pass by value
-✅ Reference value copy
-✅ `ref`
-⬜ `out`
-⬜ `in`
-⬜ `params`
-⬜ Recursion
+✅ Call Stack  
+✅ Parametre aktarımı  
+✅ Pass by value  
+✅ Reference value copy  
+✅ `ref parameter`  
+✅ Caller Variable / Parameter Variable ayrımı  
+✅ Managed Pointer'ın amacı  
+✅ Object Mutation / Reference Reassignment ayrımı  
+⬜ `out`  
+⬜ `in`  
+⬜ `params`  
+⬜ Recursion  
 ⬜ StackOverflowException
 
 ---
@@ -159,7 +167,7 @@ void Change(Player p)
 }
 ```
 
-Sadece local `p` değişkeni yeni nesneyi göstermeye başlar. Çağırandaki değişken değişmez.
+Sadece method frame içindeki `p` parameter variable'ı yeni nesneyi göstermeye başlar. Caller variable değişmez.
 
 ### `ref`
 
@@ -170,11 +178,11 @@ void SetPlayer(ref Player p)
 }
 ```
 
-`ref`, object'i reference type'a dönüştürmez ve boxing yapmaz. Çağıranın değişkeninin storage location'ına erişim sağlar. Böylece `p = new Player()` çağırandaki değişkenin tuttuğu referansı değiştirir.
+`ref`, object'i reference type'a dönüştürmez ve boxing yapmaz. Compiler, metoda caller variable'ın değerini kopyalamak yerine o değişkenin storage location'ına erişimi temsil eden bir managed pointer geçirir. Böylece `p = new Player()` caller variable'ın tuttuğu reference value'yu değiştirir.
 
 ---
 
-## En Son Doğru Cevap
+## Tamamlanan Son Analiz
 
 ```csharp
 void Change(ref Player p)
@@ -185,13 +193,13 @@ void Change(ref Player p)
 }
 ```
 
-Çağrıdan sonra çıktı `Mehmet` olur.
+Çağrıdan sonra caller variable yeni nesneyi gösterir ve çıktı `Mehmet` olur.
 
 Sebep:
 
-1. İlk nesnenin `Name` alanı `Veli` yapılır.
-2. `ref` üzerinden çağırandaki değişken yeni nesneye yönlendirilir.
-3. Yeni nesnenin `Name` alanı `Mehmet` yapılır.
+1. İlk nesnenin `Name` değeri `Veli` yapılır.
+2. `ref` üzerinden caller variable yeni nesneye yönlendirilir.
+3. Yeni nesnenin `Name` değeri `Mehmet` yapılır.
 
 ---
 
@@ -206,8 +214,4 @@ bool TryParseAge(string text, out int age)
 }
 ```
 
-> Normal `ref` varken neden ayrıca `out` tasarlandı?
-
-Ardından:
-
-> Büyük bir struct'ı değiştirmeden ve kopyalamadan metoda geçirmek için neden `in` gerekir?
+> `ref` çağıranın değişkenine erişebiliyorsa neden ayrıca `out` tasarlandı?

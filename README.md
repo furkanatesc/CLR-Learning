@@ -4,10 +4,11 @@ Bu repo, C# sözdizimini ezberlemek için değil; .NET Runtime / CLR çalışma 
 
 ## İlerleme
 
-`████████░░░░░░░░░░░░░░░░░░░░  28%`
+`█████████░░░░░░░░░░░░░░░░░░░  30%`
 
-Güncel aşama: **Aşama 1 — CLR ve Bellek Modeli**  
-Sıradaki konu: **Method Parameter Passing**
+Güncel aşama: **Aşama 3 — Method Mekaniği**  
+Tamamlanan son konu: **`ref parameter` ve Managed Pointer semantiği**  
+Sıradaki konu: **`out parameter`**
 
 ## Amaç
 
@@ -27,3 +28,7 @@ analiz edebilecek seviyeye gelmektir.
 CLR-Learning/
 ├── README.md
 ├── Canonical/
+├── Journal/
+├── Notes/
+└── Review/
+```
